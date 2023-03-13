@@ -2,18 +2,26 @@ import requests
 
 
 # Get the video info
-def bili_info(bvid):
+def biliInfo(bvid):
     params = (
         ('bvid', bvid),
     )
     # bilibili video info response
     response = requests.get('https://api.bilibili.com/x/web-interface/view', params=params)
+    ans = response.json()['data']
+
+    # add extra info
+    ans['url'] = "https://www.bilibili.com/video/" + bvid
+
+    # add tags info
+    tags = biliTags(bvid)
+    ans['tags'] = tags
     
-    return response.json()['data']
+    return ans
 
 
 # Get the video tags
-def bili_tags(bvid):
+def biliTags(bvid):
     params = (
         ('bvid', bvid),
     )
@@ -32,14 +40,14 @@ def bili_tags(bvid):
 
 
 # Get the video player list / multi page
-def bili_player_list(bvid):
+def biliPlayerList(bvid):
     response = requests.get('https://api.bilibili.com/x/player/pagelist?bvid=' + bvid)
     cid_list = [x['cid'] for x in response.json()['data']]
 
     return cid_list
 
 
-def bili_subtitle_list(bvid, cid, headers):
+def biliSubtitleList(bvid, cid, headers):
     response = requests.get(f'https://api.bilibili.com/x/player/v2?bvid={bvid}&cid={cid}', headers=headers)
     subtitles = response.json()['data']['subtitle']['subtitles']
     if subtitles:
@@ -48,7 +56,7 @@ def bili_subtitle_list(bvid, cid, headers):
         return []
 
 
-def bili_subtitle(bvid, cid):
+def biliSubtitle(bvid, cid):
     headers = {
     'authority': 'api.bilibili.com',
     'accept': 'application/json, text/plain, */*',
@@ -58,7 +66,7 @@ def bili_subtitle(bvid, cid):
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.63'
     }
     
-    subtitles = bili_subtitle_list(bvid, cid, headers)
+    subtitles = biliSubtitleList(bvid, cid, headers)
     if subtitles:
         response = requests.get(subtitles[0], headers=headers)
         if response.status_code == 200:
@@ -71,14 +79,14 @@ if __name__ == "__main__":
     bvid = "BV1qo4y1r7qV"
     # test 1
     print("bili_info")
-    print(bili_info(bvid))
+    print(biliInfo(bvid))
     # test 2
     print("bili_tags")
-    print(bili_tags(bvid))
+    print(biliTags(bvid))
     # test 3
     print("bili_player_list")
-    print(bili_player_list(bvid))
+    print(biliPlayerList(bvid))
     # test 4
-    subtitle_text = bili_subtitle(bvid, bili_player_list(bvid)[0])
+    subtitle_text = biliSubtitle(bvid, biliPlayerList(bvid)[0])
     print("bili_subtitle_text")
     print(subtitle_text)

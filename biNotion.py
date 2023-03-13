@@ -6,22 +6,20 @@ from biChatgpt import *
 token = json.load(open('dmypy.json')).get("notion_bot_key")
 database_id = json.load(open('dmypy.json')).get("notion_database_url")
 
-def insert2notion(token, database_id, bvid, summarized_text):    
+def insert2Notion(info, summarized_text):    
     headers = {
         'Notion-Version': '2022-06-28',
-        'Authorization': 'Bearer '+ token,
+        'Authorization': 'Bearer ' + token,
     }
-    info = bili_info(bvid)
-    tags = bili_tags(bvid)
     multi_select = []
     pubdate = time.strftime("%Y-%m-%d", time.localtime(info['pubdate']))
-    for each in tags:
+    for each in info['tags']:
         multi_select.append({'name': each})
     body= {
         "parent": {"type": "database_id","database_id": database_id},
         "properties": {
             "标题": { "title": [{"type": "text","text": {"content": info['title']}}]},
-            "URL": { "url": 'https://www.bilibili.com/video/'+bvid},
+            "URL": { "url": 'https://www.bilibili.com/video/' + bvid},
             "UP主": { "rich_text": [{"type": "text","text": {"content": info['owner']['name']}}]},
             "分区": { "select": {"name": sect[info['tid']]['parent_name']}},
             'tags': {'type': 'multi_select', 'multi_select': multi_select},
@@ -65,6 +63,6 @@ def insert2notion(token, database_id, bvid, summarized_text):
         print("导入信息成功")
         return(notion_request.json()['url'])
     else:
-        print("导入失败，请检查Body字段")
+        print("导入失败, 请检查Body字段")
         print(notion_request.text)
         return('')

@@ -1,0 +1,5 @@
+{
+    "openai_api_key": "123123123123********",
+    "notion_bot_key": "123123123123********",
+    "notion_database_url": "https://www.notion.so/123123123123********"
+}
