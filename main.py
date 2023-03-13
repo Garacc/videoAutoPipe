@@ -40,6 +40,4 @@ def main():
             print("字幕获取失败\n")
 
 if __name__ == "__main__":
-    print(openai.api_key)
-    print(sect)
     main()
